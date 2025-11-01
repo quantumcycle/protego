@@ -1,0 +1,35 @@
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace
+/bin/
+/pkg/
+vendor/
+
+# Test coverage
+coverage.out
+coverage.html
+*.coverprofile
+
+# Dependencies
+go.work.sum
+
+# Temporary files
+*.tmp
+*.temp
+.env
+.env.local
