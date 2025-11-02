@@ -1,4 +1,4 @@
-# Type-Safe Validation Package
+# Protego: Type-Safe Golang Validation Package
 
 A type-safe validation framework for Go using generics. This package provides compile-time type safety, ensuring validators can only be applied to compatible types.
 
