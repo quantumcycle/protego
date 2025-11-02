@@ -25,8 +25,23 @@ This package provides **primitives** for type-safe validation. The core package 
 
 ## Installation
 
+Install the core validation package:
+
+```bash
+go get github.com/quantumcycle/protego/validation
+```
+
+Optionally, install the playground package for 100+ pre-built validators:
+
+```bash
+go get github.com/quantumcycle/protego/playground
+```
+
+Then import in your code:
+
 ```go
 import "github.com/quantumcycle/protego/validation"
+import "github.com/quantumcycle/protego/playground"  // Optional
 ```
 
 ## Quick Start
