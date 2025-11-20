@@ -27,7 +27,7 @@ func In[T comparable](caseInsensitive bool, allowed ...T) Validator[T] {
 		} else if slices.Contains(allowed, v) {
 			return nil
 		}
-		return fmt.Errorf("must be one of: %v", allowed)
+		return NewValidationError(fmt.Sprintf("must be one of: %v", allowed))
 	}
 }
 
@@ -53,11 +53,11 @@ func NotIn[T comparable](caseInsensitive bool, forbidden ...T) Validator[T] {
 			vs := strings.ToLower(fmt.Sprint(v))
 			for _, f := range forbidden {
 				if strings.ToLower(fmt.Sprint(f)) == vs {
-					return fmt.Errorf("cannot be one of: %v", forbidden)
+					return NewValidationError(fmt.Sprintf("cannot be one of: %v", forbidden))
 				}
 			}
 		} else if slices.Contains(forbidden, v) {
-			return fmt.Errorf("cannot be one of: %v", forbidden)
+			return NewValidationError(fmt.Sprintf("cannot be one of: %v", forbidden))
 		}
 		return nil
 	}
@@ -75,7 +75,7 @@ func Each[T any](elementValidator Validator[T]) Validator[[]T] {
 		var errs []error
 		for i, v := range values {
 			if err := elementValidator(v); err != nil {
-				errs = append(errs, fmt.Errorf("index %d: %w", i, err))
+				errs = append(errs, WrapError(fmt.Errorf("index %d: %w", i, err)))
 			}
 		}
 		return errors.Join(errs...)
@@ -90,7 +90,7 @@ func Each[T any](elementValidator Validator[T]) Validator[[]T] {
 func NotEmpty[T any]() Validator[[]T] {
 	return func(values []T) error {
 		if len(values) == 0 {
-			return fmt.Errorf("cannot be empty")
+			return NewValidationError("cannot be empty")
 		}
 		return nil
 	}
@@ -104,7 +104,7 @@ func NotEmpty[T any]() Validator[[]T] {
 func MinItems[T any](minimum int) Validator[[]T] {
 	return func(values []T) error {
 		if len(values) < minimum {
-			return fmt.Errorf("must have at least %d items", minimum)
+			return NewValidationError(fmt.Sprintf("must have at least %d items", minimum))
 		}
 		return nil
 	}
@@ -118,7 +118,7 @@ func MinItems[T any](minimum int) Validator[[]T] {
 func MaxItems[T any](maximum int) Validator[[]T] {
 	return func(values []T) error {
 		if len(values) > maximum {
-			return fmt.Errorf("must have at most %d items", maximum)
+			return NewValidationError(fmt.Sprintf("must have at most %d items", maximum))
 		}
 		return nil
 	}
@@ -134,7 +134,7 @@ func UniqueItems[T comparable]() Validator[[]T] {
 		seen := make(map[T]bool)
 		for i, v := range values {
 			if seen[v] {
-				return fmt.Errorf("duplicate item at index %d: %v", i, v)
+				return NewValidationError(fmt.Sprintf("duplicate item at index %d: %v", i, v))
 			}
 			seen[v] = true
 		}
@@ -182,13 +182,13 @@ func ValidateStringMap(m map[string]string, allowExtra bool, rules ...MapKeyRule
 
 		value, exists := m[rule.key]
 		if !exists && rule.required {
-			return fmt.Errorf("key %q is required", rule.key)
+			return NewValidationError(fmt.Sprintf("key %q is required", rule.key))
 		}
 
 		if exists {
 			for _, validator := range rule.validators {
 				if err := validator(value); err != nil {
-					return fmt.Errorf("key %q: %w", rule.key, err)
+					return WrapError(fmt.Errorf("key %q: %w", rule.key, err))
 				}
 			}
 		}
@@ -198,7 +198,7 @@ func ValidateStringMap(m map[string]string, allowExtra bool, rules ...MapKeyRule
 	if !allowExtra {
 		for key := range m {
 			if !validated[key] {
-				return fmt.Errorf("key %q not expected", key)
+				return NewValidationError(fmt.Sprintf("key %q not expected", key))
 			}
 		}
 	}
@@ -229,13 +229,13 @@ func ValidateAnyMap(m map[string]any, allowExtra bool, rules ...MapKeyRule[any])
 
 		value, exists := m[rule.key]
 		if !exists && rule.required {
-			return fmt.Errorf("key %q is required", rule.key)
+			return NewValidationError(fmt.Sprintf("key %q is required", rule.key))
 		}
 
 		if exists {
 			for _, validator := range rule.validators {
 				if err := validator(value); err != nil {
-					return fmt.Errorf("key %q: %w", rule.key, err)
+					return WrapError(fmt.Errorf("key %q: %w", rule.key, err))
 				}
 			}
 		}
@@ -245,7 +245,7 @@ func ValidateAnyMap(m map[string]any, allowExtra bool, rules ...MapKeyRule[any])
 	if !allowExtra {
 		for key := range m {
 			if !validated[key] {
-				return fmt.Errorf("key %q not expected", key)
+				return NewValidationError(fmt.Sprintf("key %q not expected", key))
 			}
 		}
 	}
@@ -263,7 +263,7 @@ func StringValidator(validator Validator[string]) Validator[any] {
 	return func(v any) error {
 		str, ok := v.(string)
 		if !ok {
-			return fmt.Errorf("must be a string")
+			return NewValidationError("must be a string")
 		}
 		return validator(str)
 	}
@@ -286,7 +286,7 @@ func IntValidator(validator Validator[int]) Validator[any] {
 		case int64:
 			return validator(int(val))
 		default:
-			return fmt.Errorf("must be a number")
+			return NewValidationError("must be a number")
 		}
 	}
 }
@@ -310,7 +310,7 @@ func FloatValidator(validator Validator[float64]) Validator[any] {
 		case int64:
 			return validator(float64(val))
 		default:
-			return fmt.Errorf("must be a number")
+			return NewValidationError("must be a number")
 		}
 	}
 }
@@ -328,7 +328,7 @@ func BoolValidator(validator Validator[bool]) Validator[any] {
 	return func(v any) error {
 		val, ok := v.(bool)
 		if !ok {
-			return fmt.Errorf("must be a boolean")
+			return NewValidationError("must be a boolean")
 		}
 		return validator(val)
 	}

@@ -20,6 +20,8 @@
 //	}
 package validation
 
+import "errors"
+
 // Validator is a generic validation function that validates a value of type T.
 // It returns an error if validation fails, or nil if the value is valid.
 type Validator[T any] func(T) error
@@ -85,4 +87,71 @@ func Nested[T Validatable]() Validator[T] {
 	return func(v T) error {
 		return v.Validate()
 	}
+}
+
+// Error represents an error that occurred during validation.
+// It wraps validation errors to make them identifiable as Protego errors.
+type Error struct {
+	msg string
+	err error
+}
+
+// Error returns the error message.
+func (e *Error) Error() string {
+	if e.err != nil {
+		return e.err.Error()
+	}
+	return e.msg
+}
+
+// Unwrap returns the underlying error, if any.
+func (e *Error) Unwrap() error {
+	return e.err
+}
+
+// Is allows Error to work with errors.Is().
+func (e *Error) Is(target error) bool {
+	_, ok := target.(*Error)
+	return ok
+}
+
+// NewValidationError creates a new validation Error with the given message.
+// This should be used for creating new validation errors in validators.
+//
+// Example:
+//
+//	return validation.NewValidationError("must be at least 3 characters")
+func NewValidationError(msg string) error {
+	return &Error{msg: msg}
+}
+
+// WrapError wraps an existing error as a validation Error.
+// If the error is already a validation Error, it returns it as-is.
+// This is useful for wrapping errors from external libraries (like go-playground/validator).
+//
+// Example:
+//
+//	return validation.WrapError(externalLibraryError)
+func WrapError(err error) error {
+	if err == nil {
+		return nil
+	}
+	var valErr *Error
+	if errors.As(err, &valErr) {
+		return err
+	}
+	return &Error{err: err}
+}
+
+// IsValidationError checks if an error is a validation Error or wraps one.
+// This allows users to detect if an error came from Protego validation.
+//
+// Example:
+//
+//	if validation.IsValidationError(err) {
+//	    // Handle validation error
+//	}
+func IsValidationError(err error) bool {
+	var valErr *Error
+	return errors.As(err, &valErr)
 }

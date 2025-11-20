@@ -19,8 +19,6 @@
 package playground
 
 import (
-	"fmt"
-
 	"github.com/go-playground/validator/v10"
 
 	"github.com/quantumcycle/protego/validation"
@@ -43,7 +41,10 @@ var sharedValidator = validator.New()
 // See https://pkg.go.dev/github.com/go-playground/validator/v10 for all available tags.
 func FromTag[T any](tag string) validation.Validator[T] {
 	return func(v T) error {
-		return sharedValidator.Var(v, tag)
+		if err := sharedValidator.Var(v, tag); err != nil {
+			return validation.WrapError(err)
+		}
+		return nil
 	}
 }
 
@@ -57,7 +58,7 @@ func FromTag[T any](tag string) validation.Validator[T] {
 func FromTagWithMessage[T any](tag, message string) validation.Validator[T] {
 	return func(v T) error {
 		if err := sharedValidator.Var(v, tag); err != nil {
-			return fmt.Errorf("%s", message)
+			return validation.NewValidationError(message)
 		}
 		return nil
 	}

@@ -1,7 +1,5 @@
 package validation
 
-import "fmt"
-
 // NilOrNotEmpty validates that a pointer to string is either nil or not empty.
 // This is useful for optional fields that, if provided, must not be empty.
 //
@@ -18,7 +16,7 @@ func NilOrNotEmpty() Validator[*string] {
 			return nil // Nil is okay
 		}
 		if *v == "" {
-			return fmt.Errorf("cannot be empty string (must be nil or non-empty)")
+			return NewValidationError("cannot be empty string (must be nil or non-empty)")
 		}
 		return nil
 	}
@@ -65,7 +63,7 @@ func NilOr[T any](validator Validator[T]) Validator[*T] {
 func NotNil[T any]() Validator[*T] {
 	return func(v *T) error {
 		if v == nil {
-			return fmt.Errorf("cannot be nil")
+			return NewValidationError("cannot be nil")
 		}
 		return nil
 	}

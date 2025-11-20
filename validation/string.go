@@ -15,7 +15,7 @@ import (
 func MinLength(minimum int) Validator[string] {
 	return func(v string) error {
 		if len(v) < minimum {
-			return fmt.Errorf("must be at least %d characters", minimum)
+			return NewValidationError(fmt.Sprintf("must be at least %d characters", minimum))
 		}
 		return nil
 	}
@@ -29,7 +29,7 @@ func MinLength(minimum int) Validator[string] {
 func MaxLength(maximum int) Validator[string] {
 	return func(v string) error {
 		if len(v) > maximum {
-			return fmt.Errorf("must be at most %d characters", maximum)
+			return NewValidationError(fmt.Sprintf("must be at most %d characters", maximum))
 		}
 		return nil
 	}
@@ -44,7 +44,7 @@ func Length(minimum, maximum int) Validator[string] {
 	return func(v string) error {
 		length := len(v)
 		if length < minimum || length > maximum {
-			return fmt.Errorf("must be between %d and %d characters", minimum, maximum)
+			return NewValidationError(fmt.Sprintf("must be between %d and %d characters", minimum, maximum))
 		}
 		return nil
 	}
@@ -58,7 +58,7 @@ func Length(minimum, maximum int) Validator[string] {
 func IsInt() Validator[string] {
 	return func(v string) error {
 		if _, err := strconv.Atoi(v); err != nil {
-			return fmt.Errorf("must be a valid integer")
+			return NewValidationError("must be a valid integer")
 		}
 		return nil
 	}
@@ -73,7 +73,7 @@ func MatchesPattern(pattern string) Validator[string] {
 	regex := regexp.MustCompile(pattern)
 	return func(v string) error {
 		if !regex.MatchString(v) {
-			return fmt.Errorf("must match pattern %q", pattern)
+			return NewValidationError(fmt.Sprintf("must match pattern %q", pattern))
 		}
 		return nil
 	}
@@ -87,7 +87,7 @@ func MatchesPattern(pattern string) Validator[string] {
 func StartsWith(prefix string) Validator[string] {
 	return func(v string) error {
 		if !strings.HasPrefix(v, prefix) {
-			return fmt.Errorf("must start with %q", prefix)
+			return NewValidationError(fmt.Sprintf("must start with %q", prefix))
 		}
 		return nil
 	}
@@ -101,7 +101,7 @@ func StartsWith(prefix string) Validator[string] {
 func EndsWith(suffix string) Validator[string] {
 	return func(v string) error {
 		if !strings.HasSuffix(v, suffix) {
-			return fmt.Errorf("must end with %q", suffix)
+			return NewValidationError(fmt.Sprintf("must end with %q", suffix))
 		}
 		return nil
 	}
@@ -115,7 +115,7 @@ func EndsWith(suffix string) Validator[string] {
 func Contains(substring string) Validator[string] {
 	return func(v string) error {
 		if !strings.Contains(v, substring) {
-			return fmt.Errorf("must contain %q", substring)
+			return NewValidationError(fmt.Sprintf("must contain %q", substring))
 		}
 		return nil
 	}

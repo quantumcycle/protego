@@ -1,7 +1,5 @@
 package validation
 
-import "fmt"
-
 // Required validates that a value is not the zero value for its type.
 // For strings, this means not empty. For numbers, this means not zero.
 // For pointers, this means not nil.
@@ -14,7 +12,7 @@ func Required[T comparable]() Validator[T] {
 	return func(v T) error {
 		var zero T
 		if v == zero {
-			return fmt.Errorf("required")
+			return NewValidationError("required")
 		}
 		return nil
 	}
@@ -35,7 +33,7 @@ func RequiredIf[T comparable](condition bool) Validator[T] {
 		}
 		var zero T
 		if v == zero {
-			return fmt.Errorf("required")
+			return NewValidationError("required")
 		}
 		return nil
 	}
