@@ -10,6 +10,7 @@ A type-safe validation framework for Go using generics. This package provides co
 - **Flexible**: Wrap go-playground/validator, ozzo-validation, or ANY validation library
 - **Zero dependencies**: Core package has no external dependencies
 - **Battle-tested**: Optional playground package provides 100+ validators from go-playground
+- **Error Detection**: All errors are wrapped in `validation.Error` for easy identification
 - **Clean API**: Simple, readable validation code
 
 ## Philosophy
@@ -95,6 +96,69 @@ validation.Validate(age, validation.MinLength(3))
 
 // This won't compile - Range expects same type
 validation.Validate(age, validation.Range("0", "120"))
+```
+
+## Error Detection
+
+All validation errors in Protego are wrapped in a `validation.Error` type, making it easy to detect and handle Protego-specific errors:
+
+```go
+import (
+    "errors"
+    "github.com/quantumcycle/protego/validation"
+    "github.com/quantumcycle/protego/playground"
+)
+
+func ProcessUser(input CreateUserInput) error {
+    err := input.Validate()
+    if err != nil {
+        // Check if this is a Protego validation error
+        if validation.IsValidationError(err) {
+            // Handle validation errors specifically
+            return fmt.Errorf("validation failed: %w", err)
+        }
+        // Handle other types of errors
+        return fmt.Errorf("unexpected error: %w", err)
+    }
+    // Process valid input
+    return nil
+}
+```
+
+### Error Detection Features
+
+- **Type Detection**: Use `validation.IsValidationError(err)` to check if an error came from Protego
+- **Error Wrapping**: All validators wrap errors using `validation.Error`, including playground validators
+- **Error Unwrapping**: Supports Go's standard `errors.Unwrap()` and `errors.Is()` functions
+- **Preserved Messages**: Original error messages remain unchanged for backward compatibility
+
+### Examples
+
+```go
+// Detect validation errors from core validators
+err := validation.Validate("", validation.Required[string]())
+if validation.IsValidationError(err) {
+    fmt.Println("Protego validation error:", err.Error()) // Output: required
+}
+
+// Detect validation errors from playground validators
+err = validation.Validate("invalid-email", playground.IsEmail)
+if validation.IsValidationError(err) {
+    fmt.Println("Email validation failed:", err.Error())
+}
+
+// Use with errors.Join for multiple validations
+err = errors.Join(
+    validation.Validate("", validation.Required[string]()),
+    validation.Validate("ab", validation.MinLength(3)),
+)
+// Check if any are validation errors
+if validation.IsValidationError(err) {
+    fmt.Println("Contains validation errors")
+}
+
+// Error unwrapping works
+originalErr := errors.Unwrap(err)
 ```
 
 ## Available Validators

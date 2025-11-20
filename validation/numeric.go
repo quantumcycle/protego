@@ -15,7 +15,7 @@ import (
 func Min[T constraints.Ordered](minimum T) Validator[T] {
 	return func(v T) error {
 		if v < minimum {
-			return fmt.Errorf("must be at least %v", minimum)
+			return NewValidationError(fmt.Sprintf("must be at least %v", minimum))
 		}
 		return nil
 	}
@@ -30,7 +30,7 @@ func Min[T constraints.Ordered](minimum T) Validator[T] {
 func Max[T constraints.Ordered](maximum T) Validator[T] {
 	return func(v T) error {
 		if v > maximum {
-			return fmt.Errorf("must be at most %v", maximum)
+			return NewValidationError(fmt.Sprintf("must be at most %v", maximum))
 		}
 		return nil
 	}
@@ -45,7 +45,7 @@ func Max[T constraints.Ordered](maximum T) Validator[T] {
 func Range[T constraints.Ordered](minimum, maximum T) Validator[T] {
 	return func(v T) error {
 		if v < minimum || v > maximum {
-			return fmt.Errorf("must be between %v and %v", minimum, maximum)
+			return NewValidationError(fmt.Sprintf("must be between %v and %v", minimum, maximum))
 		}
 		return nil
 	}
@@ -59,7 +59,7 @@ func Range[T constraints.Ordered](minimum, maximum T) Validator[T] {
 func GreaterThan[T constraints.Ordered](threshold T) Validator[T] {
 	return func(v T) error {
 		if v <= threshold {
-			return fmt.Errorf("must be greater than %v", threshold)
+			return NewValidationError(fmt.Sprintf("must be greater than %v", threshold))
 		}
 		return nil
 	}
@@ -73,7 +73,7 @@ func GreaterThan[T constraints.Ordered](threshold T) Validator[T] {
 func LessThan[T constraints.Ordered](threshold T) Validator[T] {
 	return func(v T) error {
 		if v >= threshold {
-			return fmt.Errorf("must be less than %v", threshold)
+			return NewValidationError(fmt.Sprintf("must be less than %v", threshold))
 		}
 		return nil
 	}
@@ -89,7 +89,7 @@ func Positive[T constraints.Ordered]() Validator[T] {
 	return func(v T) error {
 		var zero T
 		if v <= zero {
-			return fmt.Errorf("must be positive")
+			return NewValidationError("must be positive")
 		}
 		return nil
 	}
@@ -104,7 +104,7 @@ func NonNegative[T constraints.Ordered]() Validator[T] {
 	return func(v T) error {
 		var zero T
 		if v < zero {
-			return fmt.Errorf("must be non-negative")
+			return NewValidationError("must be non-negative")
 		}
 		return nil
 	}
@@ -119,7 +119,7 @@ func Negative[T constraints.Ordered]() Validator[T] {
 	return func(v T) error {
 		var zero T
 		if v >= zero {
-			return fmt.Errorf("must be negative")
+			return NewValidationError("must be negative")
 		}
 		return nil
 	}
@@ -133,7 +133,7 @@ func Negative[T constraints.Ordered]() Validator[T] {
 func MultipleOf[T constraints.Integer](divisor T) Validator[T] {
 	return func(v T) error {
 		if v%divisor != 0 {
-			return fmt.Errorf("must be a multiple of %v", divisor)
+			return NewValidationError(fmt.Sprintf("must be a multiple of %v", divisor))
 		}
 		return nil
 	}

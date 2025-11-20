@@ -15,7 +15,7 @@ func IsRFC3339DateTime() Validator[string] {
 	return func(v string) error {
 		_, err := time.Parse(time.RFC3339, v)
 		if err != nil {
-			return fmt.Errorf("must be a valid RFC3339 date-time")
+			return NewValidationError("must be a valid RFC3339 date-time")
 		}
 		return nil
 	}
@@ -30,7 +30,7 @@ func IsISO8601Date() Validator[string] {
 	return func(v string) error {
 		_, err := time.Parse("2006-01-02", v)
 		if err != nil {
-			return fmt.Errorf("must be a valid ISO8601 date (YYYY-MM-DD)")
+			return NewValidationError("must be a valid ISO8601 date (YYYY-MM-DD)")
 		}
 		return nil
 	}
@@ -46,7 +46,7 @@ func IsDateFormat(layout string) Validator[string] {
 	return func(v string) error {
 		_, err := time.Parse(layout, v)
 		if err != nil {
-			return fmt.Errorf("must match date format %q", layout)
+			return NewValidationError(fmt.Sprintf("must match date format %q", layout))
 		}
 		return nil
 	}
@@ -62,10 +62,10 @@ func IsFutureDateFormat(layout string) Validator[string] {
 	return func(v string) error {
 		t, err := time.Parse(layout, v)
 		if err != nil {
-			return fmt.Errorf("invalid date format")
+			return NewValidationError("invalid date format")
 		}
 		if !t.After(time.Now()) {
-			return fmt.Errorf("must be a future date")
+			return NewValidationError("must be a future date")
 		}
 		return nil
 	}
@@ -91,10 +91,10 @@ func IsPastDateFormat(layout string) Validator[string] {
 	return func(v string) error {
 		t, err := time.Parse(layout, v)
 		if err != nil {
-			return fmt.Errorf("invalid date format")
+			return NewValidationError("invalid date format")
 		}
 		if !t.Before(time.Now()) {
-			return fmt.Errorf("must be a past date")
+			return NewValidationError("must be a past date")
 		}
 		return nil
 	}
@@ -120,14 +120,14 @@ func IsDateBeforeFormat(beforeDate, layout string) Validator[string] {
 	return func(v string) error {
 		t, err := time.Parse(layout, v)
 		if err != nil {
-			return fmt.Errorf("invalid date format")
+			return NewValidationError("invalid date format")
 		}
 		before, err := time.Parse(layout, beforeDate)
 		if err != nil {
-			return fmt.Errorf("invalid before date format")
+			return NewValidationError("invalid before date format")
 		}
 		if !t.Before(before) {
-			return fmt.Errorf("must be before %s", before.Format(layout))
+			return NewValidationError(fmt.Sprintf("must be before %s", before.Format(layout)))
 		}
 		return nil
 	}
@@ -153,14 +153,14 @@ func IsDateAfterFormat(afterDate, layout string) Validator[string] {
 	return func(v string) error {
 		t, err := time.Parse(layout, v)
 		if err != nil {
-			return fmt.Errorf("invalid date format")
+			return NewValidationError("invalid date format")
 		}
 		after, err := time.Parse(layout, afterDate)
 		if err != nil {
-			return fmt.Errorf("invalid after date format")
+			return NewValidationError("invalid after date format")
 		}
 		if !t.After(after) {
-			return fmt.Errorf("must be after %s", after.Format(layout))
+			return NewValidationError(fmt.Sprintf("must be after %s", after.Format(layout)))
 		}
 		return nil
 	}
@@ -184,7 +184,7 @@ func IsDateAfter(afterDate string) Validator[string] {
 func IsFutureTime() Validator[time.Time] {
 	return func(v time.Time) error {
 		if !v.After(time.Now()) {
-			return fmt.Errorf("must be a future time")
+			return NewValidationError("must be a future time")
 		}
 		return nil
 	}
@@ -198,7 +198,7 @@ func IsFutureTime() Validator[time.Time] {
 func IsPastTime() Validator[time.Time] {
 	return func(v time.Time) error {
 		if !v.Before(time.Now()) {
-			return fmt.Errorf("must be a past time")
+			return NewValidationError("must be a past time")
 		}
 		return nil
 	}
@@ -212,7 +212,7 @@ func IsPastTime() Validator[time.Time] {
 func IsTimeBefore(before time.Time) Validator[time.Time] {
 	return func(v time.Time) error {
 		if !v.Before(before) {
-			return fmt.Errorf("must be before %s", before.Format(time.RFC3339))
+			return NewValidationError(fmt.Sprintf("must be before %s", before.Format(time.RFC3339)))
 		}
 		return nil
 	}
@@ -226,7 +226,7 @@ func IsTimeBefore(before time.Time) Validator[time.Time] {
 func IsTimeAfter(after time.Time) Validator[time.Time] {
 	return func(v time.Time) error {
 		if !v.After(after) {
-			return fmt.Errorf("must be after %s", after.Format(time.RFC3339))
+			return NewValidationError(fmt.Sprintf("must be after %s", after.Format(time.RFC3339)))
 		}
 		return nil
 	}

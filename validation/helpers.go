@@ -19,7 +19,7 @@ import (
 func WithMessage[T any](validator Validator[T], message string) Validator[T] {
 	return func(v T) error {
 		if err := validator(v); err != nil {
-			return fmt.Errorf("%s", message)
+			return NewValidationError(message)
 		}
 		return nil
 	}
@@ -72,7 +72,7 @@ func Or[T any](validators ...Validator[T]) Validator[T] {
 		if len(errs) == 1 {
 			return errs[0]
 		}
-		return fmt.Errorf("all validators failed: %w", errors.Join(errs...))
+		return WrapError(fmt.Errorf("all validators failed: %w", errors.Join(errs...)))
 	}
 }
 
@@ -88,7 +88,7 @@ func Not[T any](validator Validator[T]) Validator[T] {
 		if err := validator(v); err != nil {
 			return nil // Validator failed, so Not passes
 		}
-		return fmt.Errorf("validation should have failed but passed")
+		return NewValidationError("validation should have failed but passed")
 	}
 }
 
