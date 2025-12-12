@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/onsi/gomega v1.38.2
-	github.com/quantumcycle/protego/validation v0.0.0
+	github.com/quantumcycle/protego/validation v0.6.0
 )
 
 require (
@@ -21,5 +21,3 @@ require (
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
 )
-
-replace github.com/quantumcycle/protego/validation => ../validation
