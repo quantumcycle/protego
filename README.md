@@ -431,6 +431,27 @@ func (input MyInput) Validate() error {
 }
 ```
 
+### Struct Validation with Field Names
+
+`ValidateStruct` automatically resolves field names (via `json` tag or struct field name) and prefixes errors accordingly. No string hardcoding required.
+
+```go
+type CreateUser struct {
+    Name  string
+    Email string `json:"email"`
+    Age   int
+}
+
+func (input CreateUser) Validate() error {
+    return validation.ValidateStruct(
+        validation.Field(&input, &input.Name, validation.Required[string]()),
+        validation.Field(&input, &input.Email, validation.Required[string](), validation.Contains("@")),
+        validation.Field(&input, &input.Age, validation.Required[int](), validation.Range(18, 120)),
+    )
+}
+// Errors look like: "email: must contain @"
+```
+
 ### Nested Struct Validation
 
 ```go
